@@ -13,7 +13,8 @@ const PORT = 50052;
 let SLACK_CHANNEL = "C03V9AM9Y4C"; // #kam-slack-testing by default
 if (process.env.NODE_ENV === "production") {
   logger.info("Running in production mode");
-  SLACK_CHANNEL = "r2d2";
+  // r2d2 pod channel
+  SLACK_CHANNEL = "C0856K5G2BB";
 }
 
 // Initialize holiday instances for US and Bangalore (India, Karnataka)
@@ -150,6 +151,17 @@ ${holidayText}
     );
   });
 
+  // Add a note for team members to indicate holidays/illness days off
+  blocks.push(
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: "🚨 *Note*\nIf you have planned holidays or expect to take any days off due to illness, please let the team know so we can plan accordingly. 🙏",
+      },
+    }
+  );
+
   const message = {
     channel: channelId,
     blocks,
@@ -163,6 +175,7 @@ ${holidayText}
     );
   }
 }
+
 async function performOperations(
   jiraProcessor: JiraProcessor,
   slackClient: WebClient,
