@@ -122,8 +122,8 @@ async function sendImportantDates(
     // Format holiday details
     const holidayText = holidayDetails.length
       ? `*Business holidays to consider during this period:*\n${holidayDetails
-          .map((h) => `- ${h.date}: ${h.name} (${h.type})`)
-          .join("\n")}`
+        .map((h) => `- ${h.date}: ${h.name} (${h.type})`)
+        .join("\n")}`
       : "No business holidays during this period.";
 
     blocks.push(
@@ -177,6 +177,152 @@ ${holidayText}
   }
 }
 
+async function sendReleaseStandupReminderInternal(
+  slackClient: WebClient,
+  channelId: string,
+): Promise<void> {
+
+  const podLead = await findSlackUserIdByEmail(
+    slackClient,
+    "kamaljit.lall@ushur.com"
+  );
+  const podLeadSlack = `<@${podLead}>`;
+
+  const podLead2 = await findSlackUserIdByEmail(
+    slackClient,
+    "__nishad.singh@ushur.com",
+  );
+  const podLead2Slack = `<@${podLead2}>`;
+
+  const releaseManager = await findSlackUserIdByEmail(
+    slackClient,
+    "amrita.basu@ushur.com"
+  );
+  const releaseManagerSlack = `<@${releaseManager}>`;
+
+
+  const bigRockCategories = [
+    {
+      title: "Waiting",
+      description: "Check if you're waiting on input, deliverables, or approvals from others or any other teams.",
+      emoji: "⏳",
+    },
+    {
+      title: "Are We On Track?",
+      description: `
+Assess timelines:
+- Are we on track based on the calendar?
+- Are there any shifts in deadlines that need attention?
+      `,
+      emoji: "📅",
+    },
+    {
+      title: "Blockers",
+      description: `
+Identify blockers:
+- *Technical blockers*: Are there unresolved technical challenges?
+- *Resource blockers*: Are we missing key resources or personnel?
+      `,
+      emoji: "🚧",
+    },
+  ];
+
+  const blocks = [
+    {
+      type: "header",
+      text: {
+        type: "plain_text",
+        text: `🔔 Release Standup Reminder: Please provide an update `,
+      },
+    },
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `Hi ${podLeadSlack} and ${podLead2Slack}, please provide an update to ${releaseManagerSlack} on any categories below. She is representing the R2D2 pod in the twice weekly release standup and the next standup is tomorrow.`
+      },
+    },
+  ];
+
+  bigRockCategories.forEach(({ title, description, emoji }) => {
+    blocks.push(
+      {
+        type: "header",
+        text: {
+          type: "plain_text",
+          text: `${emoji} ${title}`,
+        },
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: description,
+        },
+      },
+    );
+  });
+
+  // Add an actionable note at the end
+  blocks.push(
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `✅ *Action Required*\nPlease add a note as a thread for this slack and tag ${releaseManagerSlack}`,
+      },
+    },
+  );
+
+  const message = {
+    channel: channelId,
+    blocks,
+  };
+
+  try {
+    await slackClient.chat.postMessage(message);
+  } catch (error: unknown) {
+    logger.error(
+      `Error sending Big Rocks reminder: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
+async function sendReleaseStandupReminder(
+  jiraProcessor: JiraProcessor,
+  slackClient: WebClient,
+  openAIApiKey: string,
+): Promise<void> {
+  try {
+    await sendReleaseStandupReminderInternal(slackClient, SLACK_CHANNEL);
+  } catch (e) {
+    logger.error(e);
+  }
+}
+
+
+async function findSlackUserIdByEmail(
+  slackClient: WebClient,
+  email: string,
+): Promise<string> {
+  try {
+    const response = await slackClient.users.lookupByEmail({ email });
+    if (response.ok && response.user?.id) {
+      return response.user.id;
+    }
+    logger.error(
+      `Error finding Slack user by email ${email}: ${response.error || "Unknown error"}`,
+    );
+    return "";
+  } catch (error: unknown) {
+    logger.error(
+      "Error fetching Slack user by email:",
+      error instanceof Error ? error.message : String(error),
+    );
+    return "";
+  }
+}
+
 async function performOperations(
   jiraProcessor: JiraProcessor,
   slackClient: WebClient,
@@ -213,9 +359,9 @@ async function main(): Promise<void> {
     •	Month: * (Any month)
     •	Day of Week: 1-5 (Monday to Friday)
     •	Similarly, 30 3 * * 1-5 ensures 9:00 AM IST only on business days.
-	2.	Limiting to Business Days:
+  2.	Limiting to Business Days:
     •	The 1-5 in the day of the week field ensures the task runs only from Monday (1) to Friday (5).
-	3.	No Weekend Execution:
+  3.	No Weekend Execution:
     •	Cron expressions automatically exclude weekends due to the 1-5 configuration.
   */
 
@@ -226,8 +372,16 @@ async function main(): Promise<void> {
     await performOperations(jiraProcessor, slackClient, openAIApiKey);
   });
 
+  // Schedule for 12:00 PM (noon) in Santa Clara (PST/PDT), Wednesday and Friday
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  cron.schedule("0 12 * * 3,5", async () => {
+    logger.info("Running task for Santa Clara...");
+    await sendReleaseStandupReminder(jiraProcessor, slackClient, openAIApiKey);
+  });
+
   if (process.env.NODE_ENV === "development") {
     await performOperations(jiraProcessor, slackClient, openAIApiKey);
+    await sendReleaseStandupReminder(jiraProcessor, slackClient, openAIApiKey);
   }
 }
 
