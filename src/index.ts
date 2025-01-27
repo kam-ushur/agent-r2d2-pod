@@ -28,7 +28,7 @@ function calculateDaysLeft(targetDate: Date): {
   holidayDetails: { date: string; name: string; type: string }[];
 } {
   const today = new Date();
-  const dayDiff = Math.ceil((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const dayDiff = Math.ceil((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
   let businessDaysWithHolidays = 0;
   let businessDaysWithoutHolidays = 0;
@@ -323,6 +323,107 @@ async function findSlackUserIdByEmail(
   }
 }
 
+async function sendWeeklyStatusReminderInternal(
+  slackClient: WebClient,
+  channelId: string,
+): Promise<void> {
+
+  const podLead = await findSlackUserIdByEmail(
+    slackClient,
+    "kamaljit.lall@ushur.com"
+  );
+  const podLeadSlack = `<@${podLead}>`;
+
+  const podLead2 = await findSlackUserIdByEmail(
+    slackClient,
+    "__nishad.singh@ushur.com",
+  );
+  const podLead2Slack = `<@${podLead2}>`;
+
+  const presenter = await findSlackUserIdByEmail(
+    slackClient,
+    "sreekanth.sastry@ushur.com"
+  );
+  const presenterSlack = `<@${presenter}>`;
+
+
+  const podCalendarSchedule = 'https://docs.google.com/spreadsheets/d/1iV9VCNFPIVtf8-s9RyKvuKjM_9_hoTfLIVCQr0lA090/edit?gid=1778640682#gid=1778640682';
+  const podStatusSheet = 'https://docs.google.com/spreadsheets/d/1Q8_pBEOsbIkdeh7W9mOxC_Mibkpfrxet7jhDfZNdIHQ/edit?gid=726637808#gid=726637808';
+
+  const podReleaseSheet = "https://docs.google.com/spreadsheets/d/1Pvj9wLnWcijQurttBL-w5Nhgee8cxPxxS9PAsPw7NYA/edit?gid=1778640682#gid=1778640682";
+
+  const blocks = [
+    {
+      type: "header",
+      text: {
+        type: "plain_text",
+        text: "📊 Weekly Status Reminder!",
+      },
+    },
+    { type: "divider" },
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `
+Hi ${podLeadSlack} and ${podLead2Slack} ! Please take a few moments to update the status for the week - ${presenterSlack} will present this info in the next status meeting on Monday.
+
+        `,
+      },
+    },
+    { type: "divider" },
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `
+  ✅ *Action Required*: Please update the <${podCalendarSchedule}|POD Sprint Calendar Schedule> before EOD.
+        `,
+      },
+    },
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `
+  ✅ *Action Required*: Please update the <${podStatusSheet}|POD Status Sheet> before EOD.
+        `,
+      },
+    },
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `
+  ✅ *Action Required*: Update the Engineering Weekly Status slides before the EOD for the template that Marina will post in the #enggdashboard slack channel 
+        `,
+      },
+    },
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `
+  ✅ *Action Required*: Keep the <${podReleaseSheet}|POD Releases> up to date before the EOD.
+        `,
+      },
+    },
+  ];
+
+  const message = {
+    channel: channelId,
+    blocks,
+  };
+
+  try {
+    await slackClient.chat.postMessage(message);
+  } catch (error: unknown) {
+    logger.error(
+      `Error sending weekly status reminder: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
 async function performOperations(
   jiraProcessor: JiraProcessor,
   slackClient: WebClient,
@@ -330,6 +431,18 @@ async function performOperations(
 ): Promise<void> {
   try {
     await sendImportantDates(slackClient, SLACK_CHANNEL);
+  } catch (e) {
+    logger.error(e);
+  }
+}
+
+async function sendWeeklyStatusReminder(
+  jiraProcessor: JiraProcessor,
+  slackClient: WebClient,
+  openAIApiKey: string,
+): Promise<void> {
+  try {
+    await sendWeeklyStatusReminderInternal(slackClient, SLACK_CHANNEL);
   } catch (e) {
     logger.error(e);
   }
@@ -379,9 +492,17 @@ async function main(): Promise<void> {
     await sendReleaseStandupReminder(jiraProcessor, slackClient, openAIApiKey);
   });
 
+  // Schedule for 10:00 AM (morning) in Santa Clara (PST/PDT), every Friday
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  cron.schedule("0 10 * * 5", async () => {
+    logger.info("Sending weekly status update reminder for Santa Clara...");
+    await sendWeeklyStatusReminder(jiraProcessor, slackClient, openAIApiKey);
+  });
+
   if (process.env.NODE_ENV === "development") {
     await performOperations(jiraProcessor, slackClient, openAIApiKey);
     await sendReleaseStandupReminder(jiraProcessor, slackClient, openAIApiKey);
+    await sendWeeklyStatusReminder(jiraProcessor, slackClient, openAIApiKey);
   }
 }
 
