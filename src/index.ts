@@ -95,7 +95,6 @@ async function sendImportantDates(
   channelId: string,
 ): Promise<void> {
   const importantDates = [
-    { label: "Studio Agent UI MVP - Internal Demo", date: new Date(2025, 0, 31), emoji: "🛠️" },
     { label: "Studio Agent End to End MVP Demo at SKO", date: new Date(2025, 2, 4), emoji: "🎥" },
     { label: "Multi-Agent IEHP Demo at SKO", date: new Date(2025, 2, 4), emoji: "🤖" },
   ];
