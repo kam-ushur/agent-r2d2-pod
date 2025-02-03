@@ -107,7 +107,7 @@ async function sendImportantDates(
         text: "📅 Deadlines: Because Time Travel Isn’t Real (Yet)",
       },
     },
-    { type: "divider" }, // A divider for separation
+    { type: "divider" },
   ];
 
   importantDates.forEach(({ label, date, emoji }) => {
@@ -238,7 +238,7 @@ Identify blockers:
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `Hi ${podLeadSlack} and ${podLead2Slack}, please provide an update to ${releaseManagerSlack} on any categories below. She is representing the R2D2 pod in the twice weekly release standup and the next standup is tomorrow.`
+        text: `Hi ${podLeadSlack} and ${podLead2Slack}, please provide an update to ${releaseManagerSlack} on any categories below. She is representing the R2D2 pod in the twice weekly release standup and the next standup is the next business day.`
       },
     },
   ];
