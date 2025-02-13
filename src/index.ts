@@ -195,6 +195,12 @@ async function sendReleaseStandupReminderInternal(
     "__nishad.singh@ushur.com",
   );
   const podLead2Slack = `<@${podLead2}>`;
+  
+  const podLead3 = await findSlackUserIdByEmail(
+    slackClient,
+    "aravindh.dorappa@ushur.com",
+  );
+  const podLead3Slack = `<@${podLead3}>`;
 
   const releaseManager = await findSlackUserIdByEmail(
     slackClient,
@@ -241,7 +247,7 @@ Identify blockers:
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `Hi ${podLeadSlack} and ${podLead2Slack}, please provide an update to ${releaseManagerSlack} on any categories below. She is representing the R2D2 pod in the twice weekly release standup and the next standup is the next business day.`
+        text: `Hi ${podLeadSlack} and ${podLead2Slack} and ${podLead3Slack}, please provide an update to ${releaseManagerSlack} on any categories below. She is representing the R2D2 pod in the twice weekly release standup and the next standup is the next business day.`
       },
     },
   ];
@@ -341,6 +347,12 @@ async function sendWeeklyStatusReminderInternal(
     "__nishad.singh@ushur.com",
   );
   const podLead2Slack = `<@${podLead2}>`;
+  
+  const podLead3 = await findSlackUserIdByEmail(
+    slackClient,
+    "aravindh.dorappa@ushur.com",
+  );
+  const podLead3Slack = `<@${podLead3}>`;
 
   const presenter = await findSlackUserIdByEmail(
     slackClient,
@@ -368,7 +380,7 @@ async function sendWeeklyStatusReminderInternal(
       text: {
         type: "mrkdwn",
         text: `
-Hi ${podLeadSlack} and ${podLead2Slack} ! Please take a few moments to update the status for the week - ${presenterSlack} will present this info in the next status meeting on Monday.
+Hi ${podLeadSlack} and ${podLead2Slack} and ${podLead3Slack}! Please take a few moments to update the status for the week - ${presenterSlack} will present this info in the next status meeting on Monday.
 
         `,
       },
