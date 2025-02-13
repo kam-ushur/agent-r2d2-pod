@@ -97,7 +97,6 @@ async function sendImportantDates(
   const importantDates = [
     { label: "Studio Agent: Internal Demo with Backend Integration", date: new Date(2025, 1, 18), emoji: "🎥" },
     { label: "Studio Agent: Official Demo at SKO", date: new Date(2025, 2, 4), emoji: "🎥" },
-    { label: "MAS System: Internal demo of components", date: new Date(2025, 1, 11), emoji: "🎥" },
     { label: "MAS System: Internal demo of fully integrated MAS system", date: new Date(2025, 1, 18), emoji: "🎥" },
     { label: "MAS System: Official Demo at SKO", date: new Date(2025, 2, 4), emoji: "🤖" },
   ];
