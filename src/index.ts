@@ -95,10 +95,11 @@ async function sendImportantDates(
   channelId: string,
 ): Promise<void> {
   const importantDates = [
-    { label: "Studio Agent: Internal Demo with Backend Integration", date: new Date(2025, 1, 18), emoji: "🎥" },
-    { label: "Studio Agent: Official Demo at SKO", date: new Date(2025, 2, 4), emoji: "🎥" },
-    { label: "MAS System: Internal demo of fully integrated MAS system", date: new Date(2025, 1, 18), emoji: "🎥" },
-    { label: "MAS System: Official Demo at SKO", date: new Date(2025, 2, 4), emoji: "🤖" },
+    { label: ":small_blue_diamond: AI Agent Creation in Studio – Enable Citizen Developers to build & deploy AIAgents seamlessly.", date: new Date(2025, 1, 19), emoji: "🎥" },
+    { label: ":small_blue_diamond: Preview AIAgent Chatbot – Powered by GenCXA Workflow-based Orchestration (current chatbot).", date: new Date(2025, 1, 20), emoji: "🎥" },
+    { label: ":small_blue_diamond: NextGen AIAgent – MAS-powered orchestration with AXA Declaration-driven agent behavior. ", date: new Date(2025, 1, 20), emoji: "🎥" },
+    { label: ":small_blue_diamond: Studio-Integrated NextGen AIAgent", note: "Supports dynamic custom task injection, enabling adaptive decision-making and multi-agent collaboration, making orchestration more intelligent and autonomous than the current AI Agent.", date: new Date(2025, 1, 25), emoji: "🎥" },
+    { label: "Official Demo at SKO", date: new Date(2025, 2, 4), emoji: "🤖" },
   ];
 
   const blocks = [
@@ -112,7 +113,7 @@ async function sendImportantDates(
     { type: "divider" },
   ];
 
-  importantDates.forEach(({ label, date, emoji }) => {
+  importantDates.forEach(({ label, note, date, emoji }) => {
     const {
       businessDaysWithHolidays,
       businessDaysWithoutHolidays,
@@ -129,29 +130,46 @@ async function sendImportantDates(
 
     blocks.push(
       {
-        type: "header",
-        text: {
-          type: "plain_text",
-          text: `${emoji} ${label}`,
-        },
+      type: "header",
+      text: {
+        type: "plain_text",
+        text: `${label}`,
       },
+      },
+      ...(note ? [{
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `_${note}_`,
+      },
+      }] : []),
       {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `
-*Date:* ${date.toDateString()}
-- *${businessDaysWithHolidays} business days left* (including business holidays)
-- *${businessDaysWithoutHolidays} business days left* (excluding business holidays)
-- *${totalDays} total days left*
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `
+  *Date:* ${date.toDateString()}
+  - *${businessDaysWithHolidays} business days left* (including business holidays)
+  - *${businessDaysWithoutHolidays} business days left* (excluding business holidays)
+  - *${totalDays} total days left*
 
-${holidayText}
-          `,
-        },
+  ${holidayText}
+        `,
+      },
       },
       { type: "divider" } // Divider between each important date
     );
   });
+  
+  blocks.push(
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: ":white_check_mark: Focus: Elevating AI Agents from static workflow execution to context-aware, modular, and scalable MAS-based orchestration",
+      },
+    }
+  );
 
   // Add a note for team members to indicate holidays/illness days off
   blocks.push(
@@ -514,8 +532,8 @@ async function main(): Promise<void> {
 
   if (process.env.NODE_ENV === "development") {
     await performOperations(jiraProcessor, slackClient, openAIApiKey);
-    await sendReleaseStandupReminder(jiraProcessor, slackClient, openAIApiKey);
-    await sendWeeklyStatusReminder(jiraProcessor, slackClient, openAIApiKey);
+    // await sendReleaseStandupReminder(jiraProcessor, slackClient, openAIApiKey);
+    // await sendWeeklyStatusReminder(jiraProcessor, slackClient, openAIApiKey);
   }
 }
 
