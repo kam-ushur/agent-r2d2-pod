@@ -95,10 +95,10 @@ async function sendImportantDates(
   channelId: string,
 ): Promise<void> {
   const importantDates = [
-    { label: ":small_blue_diamond: AI Agent Creation in Studio – Enable Citizen Developers to build & deploy AIAgents seamlessly.", date: new Date(2025, 1, 19), emoji: "🎥" },
-    { label: ":small_blue_diamond: Preview AIAgent Chatbot – Powered by GenCXA Workflow-based Orchestration (current chatbot).", date: new Date(2025, 1, 20), emoji: "🎥" },
-    { label: ":small_blue_diamond: NextGen AIAgent – MAS-powered orchestration with AXA Declaration-driven agent behavior. ", date: new Date(2025, 1, 20), emoji: "🎥" },
-    { label: ":small_blue_diamond: Studio-Integrated NextGen AIAgent", note: "Supports dynamic custom task injection, enabling adaptive decision-making and multi-agent collaboration, making orchestration more intelligent and autonomous than the current AI Agent.", date: new Date(2025, 1, 25), emoji: "🎥" },
+    { label: ":small_blue_diamond: AI Agent Creation in Studio – Enable Citizen Developers to build & deploy AIAgents seamlessly (happy path done by Feb 21).", date: new Date(2025, 1, 24), emoji: "🎥" },
+    { label: ":small_blue_diamond: Preview AIAgent Chatbot – Powered by GenCXA Workflow-based Orchestration (current chatbot).", date: new Date(2025, 1, 24), emoji: "🎥" },
+    { label: ":small_blue_diamond: NextGen AIAgent – MAS-powered orchestration with AXA Declaration-driven agent behavior. ", date: new Date(2025, 1, 24), emoji: "🎥" },
+    { label: ":small_blue_diamond: Studio-Integrated NextGen AIAgent", note: "Supports dynamic custom task injection, enabling adaptive decision-making and multi-agent collaboration, making orchestration more intelligent and autonomous than the current AI Agent.", date: new Date(2025, 1, 24), emoji: "🎥" },
     { label: "Official Demo at SKO", date: new Date(2025, 2, 4), emoji: "🤖" },
   ];
 
